@@ -4,6 +4,9 @@ declare(strict_types = 1);
 
 namespace Uc\Analytics;
 
+/**
+ * @package Uc\Analytics
+ */
 class Message
 {
     /**

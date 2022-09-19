@@ -5,15 +5,28 @@ declare(strict_types = 1);
 namespace Uc\Analytics;
 
 use GuzzleHttp\Client;
-use Uc\Analytics\Enums\MessageType;
+use Psr\Http\Message\ResponseInterface;
 use Uc\Analytics\Interfaces\AnalyticsTrackerInterface;
 
+/**
+ * @package Uc\Analytics
+ */
 class Analytics implements AnalyticsTrackerInterface
 {
+    /**
+     * @var \GuzzleHttp\Client
+     */
     protected Client $httpClient;
 
+    /**
+     * @var string
+     */
     protected string $apiUrl;
 
+    /**
+     * @param \GuzzleHttp\Client $httpClient
+     * @param string             $apiUrl
+     */
     public function __construct(Client $httpClient, string $apiUrl)
     {
         $this->httpClient = $httpClient;
@@ -30,9 +43,7 @@ class Analytics implements AnalyticsTrackerInterface
     {
         $message = $this->enhanceMessage($message);
 
-        $response = $this->sendRequest('track', $message);
-
-        dd($response);
+        $this->sendRequest('track', $message);
     }
 
     /**
@@ -49,7 +60,7 @@ class Analytics implements AnalyticsTrackerInterface
             $this->getDefaultContext()
         );
 
-        $messageBody['originalTimestamp'] = $timestamp = date('c');;
+        $messageBody['originalTimestamp'] = $timestamp = date('c');
         $messageBody['sentAt'] = $timestamp;
 
         $message->setBody($messageBody);
@@ -57,6 +68,9 @@ class Analytics implements AnalyticsTrackerInterface
         return $message;
     }
 
+    /**
+     * @return \string[][]
+     */
     protected function getDefaultContext() : array
     {
         return [
@@ -67,7 +81,14 @@ class Analytics implements AnalyticsTrackerInterface
         ];
     }
 
-    public function sendRequest(string $url, Message $message)
+    /**
+     * @param string                $url
+     * @param \Uc\Analytics\Message $message
+     *
+     * @return \Psr\Http\Message\ResponseInterface
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function sendRequest(string $url, Message $message) : ResponseInterface
     {
         return $this->httpClient->post(sprintf('%s/%s', $this->apiUrl, $url), [
             'json' => $message->getBody()

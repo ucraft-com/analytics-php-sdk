@@ -4,14 +4,19 @@ declare(strict_types = 1);
 
 namespace Uc\Analytics\Providers;
 
-use App\Application;
 use GuzzleHttp\Client;
 use Illuminate\Support\ServiceProvider;
 use Uc\Analytics\Analytics;
 
+/**
+ * @package Uc\Analytics\Providers
+ */
 class AnalyticsServiceProvider extends ServiceProvider
 {
-    public function register()
+    /**
+     * @return void
+     */
+    public function register() : void
     {
         $this->mergeConfigFrom(__DIR__.'/../../config/config.php', 'analytics');
 
