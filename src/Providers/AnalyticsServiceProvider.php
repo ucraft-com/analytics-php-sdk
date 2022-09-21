@@ -4,6 +4,7 @@ declare(strict_types = 1);
 
 namespace Uc\Analytics\Providers;
 
+use Carbon\Carbon;
 use GuzzleHttp\Client;
 use Illuminate\Support\ServiceProvider;
 use Uc\Analytics\Analytics;
@@ -23,7 +24,10 @@ class AnalyticsServiceProvider extends ServiceProvider
         $this->app->bind(Analytics::class, function () {
             return new Analytics(
                 new Client(),
-                config('analytics.api_url')
+                config('analytics.api_url'),
+                [
+                    'library_version' => config('analytics.library_version')
+                ],
             );
         });
     }

@@ -16,5 +16,5 @@ interface AnalyticsTrackerInterface
      *
      * @return void
      */
-    public function track(Message $message) : void;
+    public function track(string $event, Message $message) : void;
 }

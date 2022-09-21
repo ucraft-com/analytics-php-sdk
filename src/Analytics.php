@@ -4,6 +4,7 @@ declare(strict_types = 1);
 
 namespace Uc\Analytics;
 
+use Carbon\Carbon;
 use GuzzleHttp\Client;
 use Psr\Http\Message\ResponseInterface;
 use Uc\Analytics\Interfaces\AnalyticsTrackerInterface;
@@ -24,44 +25,57 @@ class Analytics implements AnalyticsTrackerInterface
     protected string $apiUrl;
 
     /**
+     * @var array
+     */
+    protected array $options;
+
+    /**
      * @param \GuzzleHttp\Client $httpClient
      * @param string             $apiUrl
+     * @param array              $options
      */
-    public function __construct(Client $httpClient, string $apiUrl)
+    public function __construct(Client $httpClient, string $apiUrl, array $options)
     {
         $this->httpClient = $httpClient;
         $this->apiUrl = $apiUrl;
+        $this->options = $options;
     }
 
     /**
+     * @param string                $event
      * @param \Uc\Analytics\Message $message
      *
      * @return void
-     * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    public function track(Message $message) : void
+    public function track(string $event, Message $message) : void
     {
-        $message = $this->enhanceMessage($message);
+        $message = $this->enhanceMessage($event, $message);
 
         $this->sendRequest('track', $message);
     }
 
     /**
+     * @param string                $event
      * @param \Uc\Analytics\Message $message
      *
      * @return \Uc\Analytics\Message
      */
-    protected function enhanceMessage(Message $message) : Message
+    protected function enhanceMessage(string $event, Message $message) : Message
     {
         $messageBody = $message->getBody();
-
+        $messageBody['event'] = $event;
         $messageBody['context'] = array_merge(
             $messageBody['context'] ?? [],
             $this->getDefaultContext()
         );
 
-        $messageBody['originalTimestamp'] = $timestamp = date('c');
-        $messageBody['sentAt'] = $timestamp;
+        $date = Carbon::now();
+
+        if (empty($messageBody['originalTimestamp'])) {
+            $messageBody['originalTimestamp'] = $date->toISOString();
+        }
+
+        $messageBody['sentAt'] = $date->toISOString();
 
         $message->setBody($messageBody);
 
@@ -76,7 +90,7 @@ class Analytics implements AnalyticsTrackerInterface
         return [
             'library' => [
                 'name'    => 'analytics-php-sdk',
-                'version' => '1.0.0'
+                'version' => $this->options['library_version'],
             ],
         ];
     }
