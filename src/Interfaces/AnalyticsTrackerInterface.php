@@ -12,6 +12,7 @@ use Uc\Analytics\Message;
 interface AnalyticsTrackerInterface
 {
     /**
+     * @param string                $event
      * @param \Uc\Analytics\Message $message
      *
      * @return void

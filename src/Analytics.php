@@ -5,6 +5,7 @@ declare(strict_types = 1);
 namespace Uc\Analytics;
 
 use Carbon\Carbon;
+use Exception;
 use GuzzleHttp\Client;
 use Psr\Http\Message\ResponseInterface;
 use Uc\Analytics\Interfaces\AnalyticsTrackerInterface;
@@ -99,14 +100,16 @@ class Analytics implements AnalyticsTrackerInterface
      * @param string                $url
      * @param \Uc\Analytics\Message $message
      *
-     * @return \Psr\Http\Message\ResponseInterface
+     * @return void
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    public function sendRequest(string $url, Message $message) : ResponseInterface
+    public function sendRequest(string $url, Message $message) : void
     {
-        return $this->httpClient->post(sprintf('%s/%s', $this->apiUrl, $url), [
-            'json' => $message->getBody()
-        ]);
+        if (!empty($this->options['analytics_tracking_enabled'])) {
+            $this->httpClient->post(sprintf('%s/%s', $this->apiUrl, $url), [
+                'json' => $message->getBody()
+            ]);
+        }
     }
 
 }

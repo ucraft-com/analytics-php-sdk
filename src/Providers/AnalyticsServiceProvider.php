@@ -26,7 +26,8 @@ class AnalyticsServiceProvider extends ServiceProvider
                 new Client(),
                 config('analytics.api_url'),
                 [
-                    'library_version' => config('analytics.library_version')
+                    'library_version'            => config('analytics.library_version'),
+                    'analytics_tracking_enabled' => config('analytics.analytics_tracking_enabled'),
                 ],
             );
         });
